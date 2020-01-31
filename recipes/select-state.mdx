@@ -1,0 +1,17 @@
+---
+name: StateSelector
+route: /en/recipes/state-selector
+menu: Recipes
+---
+
+# StateSelector
+When sharing **EffectModule** cross muti components, select a partial **state** from the whole **AppState** in **EffectModule** to avoid useless rendering is a common requirement.
+**Sigi** provide **selector** API in `useEffectModule` hook and `useEffectState` hook to meet this requirement. Component can select the states they care about through this API, and every other parts of the **AppState** changes would be ignored and won't trigger rerender.
+
+<iframe
+  src="https://codesandbox.io/embed/sigi-recipes-state-selector-m4m18?expanddevtools=1&fontsize=14&hidenavigation=1&module=%2Fsrc%2Findex.tsx&theme=dark"
+  style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+  title="sigi-recipes-state-selector"
+  allow="geolocation; microphone; camera; midi; vr; accelerometer; gyroscope; payment; ambient-light-sensor; encrypted-media; usb"
+  sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"
+></iframe>

@@ -1,0 +1,90 @@
+---
+name: 依赖替换
+route: /zh/recipes/dependencies-replacement
+menu: 深入
+---
+
+# 依赖替换
+在使用 **monorepo** 模式管理的项目中，替换依赖是非常常见的需求。对于这种场景，**Sigi** 提供了 `InjectionProvidersContext` 这个 API 来提供替换依赖的能力.
+
+[依赖替换的例子](https://codesandbox.io/s/sigi-recipes-dependencies-replacement-tktun)
+
+<iframe
+  src="https://codesandbox.io/embed/sigi-recipes-dependencies-replacement-tktun?expanddevtools=1&fontsize=14&hidenavigation=1&module=%2Fsrc%2Findex.tsx&theme=dark"
+  style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+  title="sigi-recipes-dependencies-replacement"
+  allow="geolocation; microphone; camera; midi; vr; accelerometer; gyroscope; payment; ambient-light-sensor; encrypted-media; usb"
+  sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"
+></iframe>
+
+```ts
+import 'reflect-metadata'
+import React from 'react'
+import { render } from 'react-dom'
+import { ClassProvider } from '@sigi/di'
+import { useEffectModule, InjectionProvidersContext } from '@sigi/react'
+import { HttpErrorClient } from './http-with-error.service'
+import { HttpBetterClient } from './http-better.service'
+
+import { AppModule } from './app.module'
+
+const AppContainer = React.memo(({ appTitle }: { appTitle: string }) => {
+  const [{ list }, dispatcher] = useEffectModule(AppModule)
+
+  const loading = !list ? <div>loading</div> : null
+
+  const title = list instanceof Error ? <h1>{list.message}</h1> : <h1>{appTitle}</h1>
+
+  const listNodes = Array.isArray(list) ? list.map((value) => <li key={value}>{value}</li>) : null
+  return (
+    <div>
+      {title}
+      <button onClick={dispatcher.fetchList}>fetchList</button>
+      <button onClick={dispatcher.cancel}>cancel</button>
+      {loading}
+      <ul>{listNodes}</ul>
+    </div>
+  )
+})
+
+function App() {
+  const betterHttpProvider: ClassProvider<HttpErrorClient> = {
+    provide: HttpErrorClient,
+    useClass: HttpBetterClient,
+  }
+  return (
+    <>
+      <AppContainer appTitle="Always error" />
+      <InjectionProvidersContext providers={[betterHttpProvider]}>
+        <AppContainer appTitle="Better http client" />
+      </InjectionProvidersContext>
+    </>
+  )
+}
+
+const rootElement = document.getElementById('app')
+render(<App />, rootElement)
+```
+
+## 警告⚠️
+为了不影响性能，**InjectionProvidersContext** 需要尽可能的放在 ***静态*** 上下文中。比如，在 [LeetCode CN](https://leetcode-cn.com/circle) 的大部分 App 中，**InjectionProvidersContext** 只出现在 **AppRoot** 这一层级的组件中。永远不要将 **InjectionProvidersContext** 放在动态上下文中:
+
+```tsx
+const EnhancedLoggerProvider: ClassProvider<Logger> = {
+  provide: Logger,
+  useClass: EnhancedLoggerForItemDetail,
+}
+
+const Item = React.memo(({ item }: { item }: Item) => {
+  // very bad
+  return (
+    <InjectionProvidersContext providers={[EnhancedLoggerProvider]}>
+      <div key={item.id}>
+        <ItemDetail detail={item.data.detailObject} />
+      </div>
+    </InjectionProvidersContext>
+  )
+})
+```
+
+如果你有类似的需求，即: **在组件级别而不是应用级别替换依赖**，你可以在 **EffectModule** 中编写逻辑去处理这种需求。比如注入多个依赖到同一个 **EffectModule** 中，再依据不同的 **Payload** 使用不同的依赖。

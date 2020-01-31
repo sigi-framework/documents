@@ -1,0 +1,91 @@
+---
+name: Dependencies Replacement
+route: /en/recipes/dependencies-replacement
+menu: Recipes
+---
+
+# Dependencies replacement
+Replace an dependencies is a common requirement when you are developing a **monorepo** project.
+For this scenario, **Sigi** provide `InjectionProvidersContext` to replace dependencies.
+
+[Dependencies replacement example](https://codesandbox.io/s/sigi-recipes-dependencies-replacement-tktun)
+
+<iframe
+  src="https://codesandbox.io/embed/sigi-recipes-dependencies-replacement-tktun?expanddevtools=1&fontsize=14&hidenavigation=1&module=%2Fsrc%2Findex.tsx&theme=dark"
+  style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+  title="sigi-recipes-dependencies-replacement"
+  allow="geolocation; microphone; camera; midi; vr; accelerometer; gyroscope; payment; ambient-light-sensor; encrypted-media; usb"
+  sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"
+></iframe>
+
+```ts
+import 'reflect-metadata'
+import React from 'react'
+import { render } from 'react-dom'
+import { ClassProvider } from '@sigi/di'
+import { useEffectModule, InjectionProvidersContext } from '@sigi/react'
+import { HttpErrorClient } from './http-with-error.service'
+import { HttpBetterClient } from './http-better.service'
+
+import { AppModule } from './app.module'
+
+const AppContainer = React.memo(({ appTitle }: { appTitle: string }) => {
+  const [{ list }, dispatcher] = useEffectModule(AppModule)
+
+  const loading = !list ? <div>loading</div> : null
+
+  const title = list instanceof Error ? <h1>{list.message}</h1> : <h1>{appTitle}</h1>
+
+  const listNodes = Array.isArray(list) ? list.map((value) => <li key={value}>{value}</li>) : null
+  return (
+    <div>
+      {title}
+      <button onClick={dispatcher.fetchList}>fetchList</button>
+      <button onClick={dispatcher.cancel}>cancel</button>
+      {loading}
+      <ul>{listNodes}</ul>
+    </div>
+  )
+})
+
+function App() {
+  const betterHttpProvider: ClassProvider<HttpErrorClient> = {
+    provide: HttpErrorClient,
+    useClass: HttpBetterClient,
+  }
+  return (
+    <>
+      <AppContainer appTitle="Always error" />
+      <InjectionProvidersContext providers={[betterHttpProvider]}>
+        <AppContainer appTitle="Better http client" />
+      </InjectionProvidersContext>
+    </>
+  )
+}
+
+const rootElement = document.getElementById('app')
+render(<App />, rootElement)
+```
+
+## Warning⚠️
+For performance consideration, **InjectionProvidersContext** should be as static as possible. For example, in most of apps in [LeetCode CN](https://leetcode-cn.com/circle), we only put the **InjectionProvidersContext** in **AppRoot** level. You should never put **InjectionProvidersContext** in a dynamic context:
+
+```tsx
+const EnhancedLoggerProvider: ClassProvider<Logger> = {
+  provide: Logger,
+  useClass: EnhancedLoggerForItemDetail,
+}
+
+const Item = React.memo(({ item }: { item }: Item) => {
+  // very bad
+  return (
+    <InjectionProvidersContext providers={[EnhancedLoggerProvider]}>
+      <div key={item.id}>
+        <ItemDetail detail={item.data.detailObject} />
+      </div>
+    </InjectionProvidersContext>
+  )
+})
+```
+
+If you have the similar requirement: **Use different dependencies in Component level rather than application level**, you should handle the different in the **EffectModule** side. For example you can inject different dependencies in **EffectModule**, and use different dependency depend on the **Payload**.

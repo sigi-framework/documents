@@ -1,0 +1,118 @@
+---
+name: Cancellation
+route: /en/recipes/cancellation
+menu: Recipes
+---
+
+# Cancellation
+Cancelling some async side effects is a common requirement of **Effect**. While there are several ways of doing this depending on your requirements, the most common way is to have your application dispatch a cancellation action and listen for it inside your **Effect**.
+
+[Cancellation example](https://codesandbox.io/s/sigi-recipes-cancellation-46otl)
+
+<iframe
+  src="https://codesandbox.io/embed/sigi-recipes-cancellation-46otl?expanddevtools=1&fontsize=14&hidenavigation=1&module=%2Fsrc%2Findex.tsx&theme=dark"
+  style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+  title="sigi-recipes-cancellation"
+  allow="geolocation; microphone; camera; midi; vr; accelerometer; gyroscope; payment; ambient-light-sensor; encrypted-media; usb"
+  sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"
+></iframe>
+
+If you click the *cancel* button before `loading text` disappear, the `fetchList` **Effect** would be cancelled, and there won't be `Got response` message in Console.
+
+```tsx
+import { Module, EffectModule, Reducer, Effect, Action } from '@sigi/core'
+import { Observable } from 'rxjs'
+import { exhaustMap, takeUntil, map, tap, startWith, endWith } from 'rxjs/operators'
+
+import { HttpClient } from './http.service'
+
+interface AppState {
+  loading: boolean
+  list: string[] | null
+}
+
+@Module('App')
+export class AppModule extends EffectModule<AppState> {
+  defaultState: AppState = {
+    list: null,
+    loading: false,
+  }
+
+  constructor(private readonly httpClient: HttpClient) {
+    super()
+  }
+
+  @Reducer()
+  cancel(state: AppState) {
+    return { ...state, ...this.defaultState }
+  }
+
+  @Reducer()
+  setLoading(state: AppState, loading: boolean) {
+    return { ...state, loading }
+  }
+
+  @Reducer()
+  setList(state: AppState, list: string[]) {
+    return { ...state, list }
+  }
+
+  @Effect()
+  fetchList(payload$: Observable<void>): Observable<Action> {
+    return payload$.pipe(
+      exhaustMap(() => {
+        return this.httpClient.get(`/resources`).pipe(
+          tap(() => {
+            console.info('Got response')
+          }),
+          map((response) => this.getActions().setList(response)),
+          startWith(this.getActions().setLoading(true)),
+          endWith(this.getActions().setLoading(false)),
+          takeUntil(this.getAction$().cancel),
+        )
+      }),
+    )
+  }
+}
+
+import { Injectable } from '@sigi/di'
+import { Observable, timer } from 'rxjs'
+import { map } from 'rxjs/operators'
+
+@Injectable()
+export class HttpClient {
+  get(_url: string): Observable<string[]> {
+    return timer(3000).pipe(map(() => ['mock1', 'mock2', 'mock3']))
+  }
+}
+
+import 'reflect-metadata'
+import React from 'react'
+import { render } from 'react-dom'
+import { useEffectModule } from '@sigi/react'
+import { initDevtool } from '@sigi/devtool'
+
+import { AppModule } from './app.module'
+
+function App() {
+  const [state, dispatcher] = useEffectModule(AppModule)
+
+  const loading = state.loading ? <div>loading</div> : null
+
+  const list = (state.list || []).map((value) => <li key={value}>{value}</li>)
+  return (
+    <div>
+      <h1>Hello CodeSandbox</h1>
+      <button onClick={dispatcher.fetchList}>fetchList</button>
+      <button onClick={dispatcher.cancel}>cancel</button>
+      {loading}
+      <ul>{list}</ul>
+    </div>
+  )
+}
+
+const rootElement = document.getElementById('app')
+render(<App />, rootElement)
+
+initDevtool()
+```

@@ -6,7 +6,7 @@ export default {
   themeConfig: {
     colors: {
       header: {
-        bg: 'violet',
+        bg: '#ffd54f',
       },
     },
     styles: {

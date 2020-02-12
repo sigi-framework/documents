@@ -5,6 +5,28 @@ route: /
 
 ![Deploy](https://github.com/sigi-framework/documents/workflows/Deploy/badge.svg)
 [![codecov](https://codecov.io/gh/sigi-framework/sigi/branch/master/graph/badge.svg)](https://codecov.io/gh/sigi-framework/sigi)
+[![npm version](https://badge.fury.io/js/%40sigi%2Fcore.svg)](https://badge.fury.io/js/%40sigi%2Fcore)
+[![Slack Status](https://img.shields.io/badge/slack-@sigi/framework-green.svg?logo=slack)](https://join.slack.com/t/sigiframework/shared_invite/enQtOTM4ODYwMjQ5OTY5LTRmM2JhYTA1NTA5OWVkZWQzZmVkZjE4OGM0ZjM4NGJlZTliNTZjYjE5OGExMjE3MTNkNGE2NmE1MjM5NDQwNTY)
 
 # Introduction
 **Sigi** is a high level **Process manager** with well designed API which based on `React hooks`, `RxJS` and `Immer`.
+
+`TypeScript` is not requirement but we **strongly recommand** using `Sigi` with `TypeScript`, and we don't provide `JavaScript` version document for now.
+
+## Install
+```bash
+yarn install @sigi/{core,di,react,react-router,ssr} immer rxjs
+```
+
+## Required polyfill in legacy browsers
+
+> Bundle these polyfills on demand, `Sigi` does't import them in source code.
+
+- Promise
+- Map
+- Set
+- Symbol
+- Reflect metadata
+  - [@abraham/reflection](https://www.npmjs.com/package/@abraham/reflection) `~3k`  **Recommand**
+  - [reflect-metadata](https://github.com/rbuckton/reflect-metadata) `~50k`
+  - [core-js/es7/reflect](https://github.com/zloirock/core-js) `~80K`

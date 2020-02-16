@@ -42,7 +42,7 @@ export default {
         'Loading/Error states handling',
         'StateSelector',
         'Dependencies Replacement',
-        'Adding new module asynchronously',
+        'Adding new EffectModule asynchronously',
         'Writting tests',
       ],
     },

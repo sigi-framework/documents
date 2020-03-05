@@ -14,7 +14,7 @@
     "docz": "^2.2.0",
     "eslint": "^6.8.0",
     "eslint-loader": "^3.0.3",
-    "gatsby": "^2.19.27",
+    "gatsby": "^2.19.28",
     "gatsby-plugin-google-analytics": "^2.1.36",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",

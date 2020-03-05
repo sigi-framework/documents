@@ -1,11 +1,11 @@
 ---
-name: Cancellation
-route: /en/recipes/cancellation
-menu: Recipes
+name: 取消
+route: /zh/recipes/react/cancellation
+menu: 深入
 ---
 
 # Cancellation
-Cancelling some async side effects is a common requirement of **Effect**. While there are several ways of doing this depending on your requirements, the most common way is to have your application dispatch a cancellation action and listen for it inside your **Effect**.
+在 **Effect** 中取消异步副作用是非常常见的需求。取决于需求有不同的几种方式来达到这个效果，其中最常见的就是在组件中 `Dispatch` 一个用于取消副作用的 `Action` 并在 **Effect** 中监听这个 `Action`:
 
 [Cancellation example](https://codesandbox.io/s/sigi-recipes-cancellation-46otl)
 
@@ -17,7 +17,7 @@ Cancelling some async side effects is a common requirement of **Effect**. While 
   sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"
 ></iframe>
 
-If you click the *cancel* button before `loading text` disappear, the `fetchList` **Effect** would be cancelled, and there won't be `Got response` message in Console.
+如果你在 `loading text` 消失之前点击了 *cancel* 按钮，`fetchList` **Effect** 会被取消，并且你也不会在控制台中看到 `Got response` 信息。
 
 ```tsx
 import { Module, EffectModule, Reducer, Effect, Action } from '@sigi/core'

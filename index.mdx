@@ -9,13 +9,32 @@ route: /
 [![Slack Status](https://img.shields.io/badge/slack-@sigi/framework-green.svg?logo=slack)](https://join.slack.com/t/sigiframework/shared_invite/enQtOTM4ODYwMjQ5OTY5LTRmM2JhYTA1NTA5OWVkZWQzZmVkZjE4OGM0ZjM4NGJlZTliNTZjYjE5OGExMjE3MTNkNGE2NmE1MjM5NDQwNTY)
 
 # Introduction
-**Sigi** is a high level **Process manager** with well designed API which based on `RxJS` and `Immer`.
 
-`TypeScript` is not requirement but we **strongly recommand** using `Sigi` with `TypeScript`, and we don't provide `JavaScript` version document for now.
+> **Sigi** is son of Odin ***(Oðin)***, the **Sig** in Sigi means victory because the name of Odin is ***Sigtýr***, which means ***The god of victory***. 
+
+
+**Sigi** is a high level **Process manager** with well designed API which based on `RxJS` and `Immer`. Unlike others state management framenwork, **Sigi** focus on the ***Process management***, which usually come with ***State management*** requirement.
+
+Of course **Sigi** also manage your state, but if you only want put some data in state, and really don't care how the data will be fetched, cached or staled, **Sigi** might too ***heavy*** for you.
+
+**Sigi** is really good at manage the ***process*** of how the state changed, not just the state itself. With the benifit of `RxJS`, you can easily cancel the ongoing request when leaving page (`takeUntil`), or ignore the following event which will trigger ajax request when the first triggered one hasn't resposed yet (`exhaustMap`).
+
+`RxJS` is the only way to manage process now, so you might need to know about [RxJS](https://rxjs.dev/) before you get start. We will also provide `AsyncGenerator` API in future.
+
+**Sigi** is written by `TypeScript`, and we **strongly recommand** using `Sigi` with `TypeScript`, we don't provide `JavaScript` version document now.
 
 ## Install
+
+### React app
+
 ```bash
 yarn install @sigi/{core,di,react,react-router,ssr} immer rxjs
+```
+
+### VueJS app
+
+```bash
+yarn install @sigi/{core,di,vue} immer rxjs
 ```
 
 ## Required polyfill in legacy browsers

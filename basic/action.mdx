@@ -5,7 +5,7 @@ menu: Basic
 ---
 
 # Action
-Sigi `EffectModule` was implmented by `State` object under the hood. `State` object is very similar with redux `Store` object. It **Dispatch** actions to `reducers` and `effects`, and receive actions from `Dispatcher` and `Effect`.
+Sigi `EffectModule` was implemented by `State` object under the hood. `State` object is very similar with redux `Store` object. It **Dispatch** actions to `reducers` and `effects`, and receive actions from `Dispatcher` and `Effect`.
 
 In sigi application, you will never need to create an `Action` by hand, so we do not expose the `Dispatch` function.
 In replacement, there are two ways to dispatch action:
@@ -16,13 +16,13 @@ In replacement, there are two ways to dispatch action:
 ## Dispatcher & ActionsCreator
 Dispatcher is a high level abstraction for **ActionsCreator** with well defined type information.
 
-Every method in `EffectModule` class decorated by  **Reducer**, **ImmerReducer**, **Effect** , **DefineAction** `Decorators` match one property with the same name in **ActionsCreator** in `EffectModule class`, and match one property with the same name in **Dispatcher** in `Component`. The **ActionsCreator** in `EffectModule class` is used for emmit action in **Effect**, and the **Dispatcher** in `Component` is used for `Dispatch` actions to `State`.
+Every method in `EffectModule` class decorated by  **Reducer**, **ImmerReducer**, **Effect** , **DefineAction** `Decorators` match one property with the same name in **ActionsCreator** in `EffectModule class`, and match one property with the same name in **Dispatcher** in `Component`. The **ActionsCreator** in `EffectModule class` is used for emit action in **Effect**, and the **Dispatcher** in `Component` is used for `Dispatch` actions to `State`.
 
 ### Dispatch props created by Redux-Actions
 You may have used [Redux-Actions](https://github.com/redux-utilities/redux-actions) in **Redux** application. **ActionsCreator** in sigi is very similar with **ActionsCreator** in `Redux-Actions`.And there are few advantages for create **ActionsCreator** using `Redux-Actions`:
 
 - Avoid [Magic string](https://en.wikipedia.org/wiki/Magic_number_(programming))
-- Provide type informations
+- Provide type information
 - Reduce boilerplate codes
 
 ```ts
@@ -78,7 +78,7 @@ This hook receive a **EffectModule** class and produce a dispatcher referred to 
 ```ts
 interface State {}
 
-@Module('Somenamespace')
+@Module('SomeNamespace')
 class SomeModule extends EffectModule<State> {
   defaultState = {}
 
@@ -103,7 +103,7 @@ const SomeComponent = () => {
 
   const onClickAdd = useCallback(() => {
     // ts will perform typecheck in the payload part
-    // and you can also perform **Jump to defination** in code editor
+    // and you can also perform **Jump to definition** in code editor
     dispatcher.addAndSync(parseInt(inputRef.current!.value, 10))
   }, [dispatcher, inputRef])
 
@@ -149,4 +149,4 @@ class CountModule extends EffectModule<State> {
 }
 ```
 
-In the example upon, `this.getActions().add(payload)` will create an action which match the `add` method which decorated by **Reducer** . Call the `diapatcher.payloadPassThrough(payload)` will finally trigger the `add` reducer and change the state. You can also call the `dispatcher.add(payload)` in `Component` directly, they are equally in this example.
+In the example upon, `this.getActions().add(payload)` will create an action which match the `add` method which decorated by **Reducer** . Call the `dispatcher.payloadPassThrough(payload)` will finally trigger the `add` reducer and change the state. You can also call the `dispatcher.add(payload)` in `Component` directly, they are equally in this example.

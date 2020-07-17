@@ -43,7 +43,7 @@ export default {
         'StateSelector',
         'Dependencies Replacement',
         'Adding new EffectModule asynchronously',
-        'Writting tests',
+        'Writing tests',
       ],
     },
     {

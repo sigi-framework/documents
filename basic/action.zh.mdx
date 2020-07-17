@@ -10,16 +10,16 @@ Sigi 的 `EffectModule` 底层由一个名为 `State` 的对象实现。`State` 
 在使用 Sigi 的应用中，你不需要手动创建 `Action`，所以我们并没有对外提供 `Dispatch` 方法。取而代之有两种方法可以达到 `Dispatch` action 的效果:
 
 - 调用 **Dispatcher** 上的方法
-- 在 **Effect** 中发射 (emmit) action
+- 在 **Effect** 中发射 (emit) action
 
 ## Dispatcher & ActionsCreator
 **Dispatcher** 是一个包含丰富类型定义的 **ActionsCreator** 的抽象。
-所有 `EffectModule` 类上被 **Reducer**, **ImmerReducer**, **Effect** 和 **DefineAction** 装饰器装饰的方法，都在 `EffectModule` 类中的 **ActionsCreator** 对象上有一个对应的方法，也在 `Component` 中的 **Dispatcher** 上有一个对应的方法。`EffectModule` 类中的 **ActionsCreator** 用来生成一个 `Action` 并且发射(Emmit) 给 `State` 对象，`Component` 中的 **Dispatcher** 用来直接 `Dispatch` 一个 Action 给 `State` 对象。
+所有 `EffectModule` 类上被 **Reducer**, **ImmerReducer**, **Effect** 和 **DefineAction** 装饰器装饰的方法，都在 `EffectModule` 类中的 **ActionsCreator** 对象上有一个对应的方法，也在 `Component` 中的 **Dispatcher** 上有一个对应的方法。`EffectModule` 类中的 **ActionsCreator** 用来生成一个 `Action` 并且发射(emit) 给 `State` 对象，`Component` 中的 **Dispatcher** 用来直接 `Dispatch` 一个 Action 给 `State` 对象。
 
 ### Dispatch props created by Redux-Actions
 你可能在写 `Redux` 的时候用过 [Redux-Actions](https://github.com/redux-utilities/redux-actions) 这个库。`Sigi` 中的 **ActionsCreator** 概念与 `Redux-Actions` 库中的 **ActionsCreator** 非常类似。在 `Redux` 应用中 **ActionsCreator** 有几个明显的好处:
 
-- 避免在程序中编写 [魔法字符串](ttps://en.wikipedia.org/wiki/Magic_number_(programming))
+- 避免在程序中编写 [魔法字符串](https://en.wikipedia.org/wiki/Magic_number_(programming))
 - (在 TypeScript 应用中)提供类型信息
 - 减少样板代码
 
@@ -77,7 +77,7 @@ Sigi 的 `Dispatcher` 借鉴了 `Redux-Actions` 的优势，让你不需要手�
 ```ts
 interface State {}
 
-@Module('Somenamespace')
+@Module('SomeNamespace')
 class SomeModule extends EffectModule<State> {
   defaultState = {}
 
@@ -102,7 +102,7 @@ const SomeComponent = () => {
 
   const onClickAdd = useCallback(() => {
     // ts will perform typecheck in the payload part
-    // and you can also perform **Jump to defination** in code editor
+    // and you can also perform **Jump to definition** in code editor
     dispatcher.addAndSync(parseInt(inputRef.current!.value, 10))
   }, [dispatcher, inputRef])
 
@@ -116,7 +116,7 @@ const SomeComponent = () => {
 ```
 
 #### `useEffectModule`
-这个 `hook` 与 `useEffectModuleDispatchers` 几乎一样，但它既返回与 **EffectModule** 类对应的 **AppState** 也返回 **Dispatcer**.
+这个 `hook` 与 `useEffectModuleDispatchers` 几乎一样，但它既返回与 **EffectModule** 类对应的 **AppState** 也返回 **Dispatcher**.
 
 ### Emit actions in Effect using **ActionsCreator**
 

@@ -30,6 +30,6 @@ jobs:
       run: |
         yarn install --frozen-lockfile --registry https://registry.npmjs.org
     - name: 'Deploy'
-      run: npx vercel --prod -t $NOW_TOKEN
+      run: npx vercel --confirm --prod -t $NOW_TOKEN
       env:
         NOW_TOKEN: ${{ secrets.NOW_TOKEN }}

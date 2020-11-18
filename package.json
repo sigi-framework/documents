@@ -20,7 +20,7 @@
     "react-dom": "^16.14.0",
     "typescript": "^4.0.5",
     "vercel": "^20.1.4",
-    "webpack": "^5.4.0"
+    "webpack": "^5.5.0"
   },
   "scripts": {
     "build": "docz build"

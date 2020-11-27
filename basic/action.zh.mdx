@@ -84,20 +84,20 @@ export const reducer = handleActions(
 #### 定义 EffectModule
 
 ```ts
-import { Module, EffectModule, Reducer } from "@sigi/core";
+import { Module, EffectModule, Reducer } from '@sigi/core'
 interface State {
-  count: number;
+  count: number
 }
 
 @Module("SomeNamespace")
 class SomeModule extends EffectModule<State> {
   defaultState = {
     count: 0,
-  };
+  }
 
   @Reducer()
   add(state: State, count: number) {
-    state = { ...state, count: state.count + count };
+    return { ...state, count: state.count + count }
   }
 }
 ```

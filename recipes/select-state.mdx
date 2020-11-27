@@ -5,8 +5,9 @@ menu: Recipes
 ---
 
 # StateSelector
+
 When sharing **EffectModule** cross muti components, select a partial **state** from the whole **AppState** in **EffectModule** to avoid useless rendering is a common requirement.
-**Sigi** provide **selector** API in `useEffectModule` hook and `useEffectState` hook to meet this requirement. Component can select the states they care about through this API, and every other parts of the **AppState** changes would be ignored and won't trigger rerender.
+**Sigi** provide **selector** API in `useModule` hook and `useModuleState` hook to meet this requirement. Component can select the states they care about through this API, and every other parts of the **AppState** changes would be ignored and won't trigger rerender.
 
 <iframe
   src="https://codesandbox.io/embed/sigi-recipes-state-selector-m4m18?expanddevtools=1&fontsize=14&hidenavigation=1&module=%2Fsrc%2Findex.tsx&theme=dark"

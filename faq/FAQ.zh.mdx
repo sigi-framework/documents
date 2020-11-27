@@ -4,7 +4,9 @@ route: /zh/faq
 ---
 
 # FAQ
+
 ## 类型推断
+
 在编写 `Effect/SSREffect` 逻辑的时候，如果这个 `Effect` 包含触发自身的逻辑或者多个 `Effect` 互相依赖, 则会出现类型推断失败的情况:
 
 [Example in CodeSandbox](https://codesandbox.io/s/sigi-faq-type-infer-3lwum)
@@ -18,24 +20,24 @@ route: /zh/faq
 ></iframe>
 
 ```typescript
-import { EffectModule, Module, ImmerReducer, Effect } from '@sigi/core'
-import { Draft } from 'immer'
-import { Observable } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { EffectModule, Module, ImmerReducer, Effect } from "@sigi/core";
+import { Draft } from "immer";
+import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
 
 export interface CountState {
-  count: number
+  count: number;
 }
 
-@Module('Count')
+@Module("Count")
 export class CountModule extends EffectModule<CountState> {
   defaultState = {
     count: 0,
-  }
+  };
 
   @ImmerReducer()
   set(state: Draft<CountState>, payload: number) {
-    state.count = state.count + payload
+    state.count = state.count + payload;
   }
 
   @Effect()
@@ -43,11 +45,11 @@ export class CountModule extends EffectModule<CountState> {
     return payload$.pipe(
       map((payload) => {
         if (payload < 5) {
-          return this.getActions().addLeastFive(payload + 1)
+          return this.getActions().addLeastFive(payload + 1);
         }
-        return this.getActions().set(payload)
-      }),
-    )
+        return this.getActions().set(payload);
+      })
+    );
   }
 }
 ```
@@ -63,9 +65,11 @@ export class CountModule extends EffectModule<CountState> {
 ```
 
 ## Effect 结束回调
-有几种常见的业务场景需要在 **Effect** 结束后执行 ***回调***:
+
+有几种常见的业务场景需要在 **Effect** 结束后执行 **_回调_**:
 
 ### 成功/失败后展示消息
+
 取决于展示消息的 API，我们可以用**数据驱动**/**副作用**两种方式来实现这个需求:
 
 [CodeSandbox effects callback side effect](https://codesandbox.io/s/sigi-faq-effects-callback-f403k)
@@ -79,35 +83,42 @@ export class CountModule extends EffectModule<CountState> {
 ></iframe>
 
 ```ts
-import { Module, EffectModule, Reducer, Effect, Action } from '@sigi/core'
-import { Observable, of } from 'rxjs'
-import { exhaustMap, takeUntil, map, tap, startWith, catchError } from 'rxjs/operators'
-import { message } from 'antd'
+import { Module, EffectModule, Reducer, Effect, Action } from "@sigi/core";
+import { Observable, of } from "rxjs";
+import {
+  exhaustMap,
+  takeUntil,
+  map,
+  tap,
+  startWith,
+  catchError,
+} from "rxjs/operators";
+import { message } from "antd";
 
-import { HttpClient } from './http.service'
+import { HttpClient } from "./http.service";
 
 interface AppState {
-  list: string[] | null | Error
+  list: string[] | null | Error;
 }
 
-@Module('App')
+@Module("App")
 export class AppModule extends EffectModule<AppState> {
   defaultState: AppState = {
     list: [],
-  }
+  };
 
   constructor(private readonly httpClient: HttpClient) {
-    super()
+    super();
   }
 
   @Reducer()
   cancel(state: AppState) {
-    return { ...state, ...this.defaultState }
+    return { ...state, ...this.defaultState };
   }
 
   @Reducer()
-  setList(state: AppState, list: AppState['list']) {
-    return { ...state, list }
+  setList(state: AppState, list: AppState["list"]) {
+    return { ...state, list };
   }
 
   @Effect()
@@ -117,22 +128,21 @@ export class AppModule extends EffectModule<AppState> {
         return this.httpClient.get(`/resources`).pipe(
           tap(
             () => {
-              message.success('Got response')
+              message.success("Got response");
             },
             (e) => {
-              message.error(e.message)
-            },
+              message.error(e.message);
+            }
           ),
           map((response) => this.getActions().setList(response)),
           catchError((e) => of(this.getActions().setList(e))),
           startWith(this.getActions().setList(null)),
-          takeUntil(this.getAction$().cancel),
-        )
-      }),
-    )
+          takeUntil(this.getAction$().cancel)
+        );
+      })
+    );
   }
 }
-
 ```
 
 [CodeSandbox effects callback state driven](https://codesandbox.io/s/sigi-faq-effects-pure-state-msbz4)
@@ -146,42 +156,49 @@ export class AppModule extends EffectModule<AppState> {
 ></iframe>
 
 ```tsx
-import 'reflect-metadata'
-import 'antd/dist/antd.css'
-import React, { useState, useCallback } from 'react'
-import { render } from 'react-dom'
-import { useEffectModule } from '@sigi/react'
-import { initDevtool } from '@sigi/devtool'
-import { Modal } from 'antd'
+import "reflect-metadata";
+import "antd/dist/antd.css";
+import React, { useState, useCallback } from "react";
+import { render } from "react-dom";
+import { useModule } from "@sigi/react";
+import { initDevtool } from "@sigi/devtool";
+import { Modal } from "antd";
 
-import { AppModule } from './app.module'
+import { AppModule } from "./app.module";
 
 function App() {
-  const [{ list }, dispatcher] = useEffectModule(AppModule)
-  const [modalVisible, setModalVisible] = useState(true)
+  const [{ list }, dispatcher] = useModule(AppModule);
+  const [modalVisible, setModalVisible] = useState(true);
   const onFetchList = useCallback(() => {
-    setModalVisible(true)
-    dispatcher.fetchList()
-  }, [dispatcher, setModalVisible])
+    setModalVisible(true);
+    dispatcher.fetchList();
+  }, [dispatcher, setModalVisible]);
   const onClose = useCallback(() => {
-    setModalVisible(false)
-  }, [setModalVisible])
+    setModalVisible(false);
+  }, [setModalVisible]);
 
-  const loading = !list ? <div>loading</div> : null
+  const loading = !list ? <div>loading</div> : null;
 
   const title =
     list instanceof Error ? (
       <>
-        <Modal title="fail" visible={modalVisible} onOk={onClose} onCancel={onClose}>
+        <Modal
+          title="fail"
+          visible={modalVisible}
+          onOk={onClose}
+          onCancel={onClose}
+        >
           <p>{list.message}</p>
         </Modal>
         <h1>{list.message}</h1>
       </>
     ) : (
       <h1>Hello CodeSandbox</h1>
-    )
+    );
 
-  const listNodes = Array.isArray(list) ? list.map((value) => <li key={value}>{value}</li>) : null
+  const listNodes = Array.isArray(list)
+    ? list.map((value) => <li key={value}>{value}</li>)
+    : null;
   return (
     <div>
       {title}
@@ -190,12 +207,11 @@ function App() {
       {loading}
       <ul>{listNodes}</ul>
     </div>
-  )
+  );
 }
 
-const rootElement = document.getElementById('app')
-render(<App />, rootElement)
+const rootElement = document.getElementById("app");
+render(<App />, rootElement);
 
-initDevtool()
-
+initDevtool();
 ```

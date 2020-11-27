@@ -4,7 +4,9 @@ route: /en/faq
 ---
 
 # FAQ
+
 ## Type Infer
+
 When you are writing `Effect/SSREffect` logic, if the `Effect` emit an `Action` which infer from itself, or some `Effects` circular dependents the others, `Type infer` in TypeScript may fail.
 
 [Example in CodeSandbox](https://codesandbox.io/s/sigi-faq-type-infer-3lwum)
@@ -18,24 +20,24 @@ When you are writing `Effect/SSREffect` logic, if the `Effect` emit an `Action` 
 ></iframe>
 
 ```typescript
-import { EffectModule, Module, ImmerReducer, Effect } from '@sigi/core'
-import { Draft } from 'immer'
-import { Observable } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { EffectModule, Module, ImmerReducer, Effect } from "@sigi/core";
+import { Draft } from "immer";
+import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
 
 export interface CountState {
-  count: number
+  count: number;
 }
 
-@Module('Count')
+@Module("Count")
 export class CountModule extends EffectModule<CountState> {
   defaultState = {
     count: 0,
-  }
+  };
 
   @ImmerReducer()
   set(state: Draft<CountState>, payload: number) {
-    state.count = state.count + payload
+    state.count = state.count + payload;
   }
 
   @Effect()
@@ -43,11 +45,11 @@ export class CountModule extends EffectModule<CountState> {
     return payload$.pipe(
       map((payload) => {
         if (payload < 5) {
-          return this.getActions().addLeastFive(payload + 1)
+          return this.getActions().addLeastFive(payload + 1);
         }
-        return this.getActions().set(payload)
-      }),
-    )
+        return this.getActions().set(payload);
+      })
+    );
   }
 }
 ```
@@ -67,7 +69,8 @@ In this scenario, you need give the `Effect` a `Return Type` **explicit**:
 There are some cases you may need run `callback` after **Effect** end:
 
 ### Show message after Success/Failure
-Depends on the API which show message, we could use **Data driven**/**Side effect** ways to implement this requirement: 
+
+Depends on the API which show message, we could use **Data driven**/**Side effect** ways to implement this requirement:
 
 [CodeSandbox effects callback side effect](https://codesandbox.io/s/sigi-faq-effects-callback-f403k)
 
@@ -80,35 +83,42 @@ Depends on the API which show message, we could use **Data driven**/**Side effec
 ></iframe>
 
 ```ts
-import { Module, EffectModule, Reducer, Effect, Action } from '@sigi/core'
-import { Observable, of } from 'rxjs'
-import { exhaustMap, takeUntil, map, tap, startWith, catchError } from 'rxjs/operators'
-import { message } from 'antd'
+import { Module, EffectModule, Reducer, Effect, Action } from "@sigi/core";
+import { Observable, of } from "rxjs";
+import {
+  exhaustMap,
+  takeUntil,
+  map,
+  tap,
+  startWith,
+  catchError,
+} from "rxjs/operators";
+import { message } from "antd";
 
-import { HttpClient } from './http.service'
+import { HttpClient } from "./http.service";
 
 interface AppState {
-  list: string[] | null | Error
+  list: string[] | null | Error;
 }
 
-@Module('App')
+@Module("App")
 export class AppModule extends EffectModule<AppState> {
   defaultState: AppState = {
     list: [],
-  }
+  };
 
   constructor(private readonly httpClient: HttpClient) {
-    super()
+    super();
   }
 
   @Reducer()
   cancel(state: AppState) {
-    return { ...state, ...this.defaultState }
+    return { ...state, ...this.defaultState };
   }
 
   @Reducer()
-  setList(state: AppState, list: AppState['list']) {
-    return { ...state, list }
+  setList(state: AppState, list: AppState["list"]) {
+    return { ...state, list };
   }
 
   @Effect()
@@ -118,22 +128,21 @@ export class AppModule extends EffectModule<AppState> {
         return this.httpClient.get(`/resources`).pipe(
           tap(
             () => {
-              message.success('Got response')
+              message.success("Got response");
             },
             (e) => {
-              message.error(e.message)
-            },
+              message.error(e.message);
+            }
           ),
           map((response) => this.getActions().setList(response)),
           catchError((e) => of(this.getActions().setList(e))),
           startWith(this.getActions().setList(null)),
-          takeUntil(this.getAction$().cancel),
-        )
-      }),
-    )
+          takeUntil(this.getAction$().cancel)
+        );
+      })
+    );
   }
 }
-
 ```
 
 [CodeSandbox effects callback state driven](https://codesandbox.io/s/sigi-faq-effects-pure-state-msbz4)
@@ -147,42 +156,49 @@ export class AppModule extends EffectModule<AppState> {
 ></iframe>
 
 ```tsx
-import 'reflect-metadata'
-import 'antd/dist/antd.css'
-import React, { useState, useCallback } from 'react'
-import { render } from 'react-dom'
-import { useEffectModule } from '@sigi/react'
-import { initDevtool } from '@sigi/devtool'
-import { Modal } from 'antd'
+import "reflect-metadata";
+import "antd/dist/antd.css";
+import React, { useState, useCallback } from "react";
+import { render } from "react-dom";
+import { useModule } from "@sigi/react";
+import { initDevtool } from "@sigi/devtool";
+import { Modal } from "antd";
 
-import { AppModule } from './app.module'
+import { AppModule } from "./app.module";
 
 function App() {
-  const [{ list }, dispatcher] = useEffectModule(AppModule)
-  const [modalVisible, setModalVisible] = useState(true)
+  const [{ list }, dispatcher] = useModule(AppModule);
+  const [modalVisible, setModalVisible] = useState(true);
   const onFetchList = useCallback(() => {
-    setModalVisible(true)
-    dispatcher.fetchList()
-  }, [dispatcher, setModalVisible])
+    setModalVisible(true);
+    dispatcher.fetchList();
+  }, [dispatcher, setModalVisible]);
   const onClose = useCallback(() => {
-    setModalVisible(false)
-  }, [setModalVisible])
+    setModalVisible(false);
+  }, [setModalVisible]);
 
-  const loading = !list ? <div>loading</div> : null
+  const loading = !list ? <div>loading</div> : null;
 
   const title =
     list instanceof Error ? (
       <>
-        <Modal title="fail" visible={modalVisible} onOk={onClose} onCancel={onClose}>
+        <Modal
+          title="fail"
+          visible={modalVisible}
+          onOk={onClose}
+          onCancel={onClose}
+        >
           <p>{list.message}</p>
         </Modal>
         <h1>{list.message}</h1>
       </>
     ) : (
       <h1>Hello CodeSandbox</h1>
-    )
+    );
 
-  const listNodes = Array.isArray(list) ? list.map((value) => <li key={value}>{value}</li>) : null
+  const listNodes = Array.isArray(list)
+    ? list.map((value) => <li key={value}>{value}</li>)
+    : null;
   return (
     <div>
       {title}
@@ -191,12 +207,11 @@ function App() {
       {loading}
       <ul>{listNodes}</ul>
     </div>
-  )
+  );
 }
 
-const rootElement = document.getElementById('app')
-render(<App />, rootElement)
+const rootElement = document.getElementById("app");
+render(<App />, rootElement);
 
-initDevtool()
-
+initDevtool();
 ```

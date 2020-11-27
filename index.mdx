@@ -9,25 +9,39 @@ route: /
 [![Slack Status](https://img.shields.io/badge/slack-@sigi/framework-green.svg?logo=slack)](https://join.slack.com/t/sigiframework/shared_invite/enQtOTM4ODYwMjQ5OTY5LTRmM2JhYTA1NTA5OWVkZWQzZmVkZjE4OGM0ZjM4NGJlZTliNTZjYjE5OGExMjE3MTNkNGE2NmE1MjM5NDQwNTY)
 
 # Introduction
-**Sigi** is a high level **Process manager** with well designed API which based on `RxJS` and `Immer`.
 
-`TypeScript` is not requirement but we **strongly recommand** using `Sigi` with `TypeScript`, and we don't provide `JavaScript` version document for now.
+**Sigi** is a high level **Effect Manager** with well designed API based on `RxJS` and `Immer`.
 
-## Install
-```bash
-yarn install @sigi/{core,di,react,react-router,ssr} immer rxjs
-```
+`TypeScript` is not required but **strongly recommended**.
+
+## Features
+
+- 🌊 **Stream**: thanks to rxjs, use sigi could get ride of complex flow of internal stats.
+- 💡 **Type safe**: Sigi provides Type Safe APIs which connect the gap between your Component and Side Effect codes in compile time.
+- 📌 **Dependencies Injection**: Sigi contains a tiny dependency injection implementation. Which allow you easier to compose your Modules and Services. And it is also provide huge benefit when you want to write some tests.
+- 💖 **Multi platforms support**: Sigi now support React/React Native and Vue 2.x.
+
+## Packages
+
+| **Project**        | **Status**                                                                                      | **Description**                                                                           |
+| ------------------ | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| @sigi/core         | ![badge](https://img.shields.io/npm/v/@sigi/core.svg?sanitize=true&style=for-the-badge)         | Framework core APIs to encapsulate related effects                                        |
+| @sigi/react        | ![badge](https://img.shields.io/npm/v/@sigi/react.svg?sanitize=true&style=for-the-badge)        | React Hooks APIs                                                                          |
+| @sigi/vue          | ![badge](https://img.shields.io/npm/v/@sigi/vue.svg?sanitize=true&style=for-the-badge)          | VueJS integration library                                                                 |
+| @sigi/react-router | ![badge](https://img.shields.io/npm/v/@sigi/react-router.svg?sanitize=true&style=for-the-badge) | React router integration                                                                  |
+| @sigi/ssr          | ![badge](https://img.shields.io/npm/v/@sigi/ssr.svg?sanitize=true&style=for-the-badge)          | Server side rendering support for `Vue/React`                                             |
+| @sigi/devtool      | ![badge](https://img.shields.io/npm/v/@sigi/devtool.svg?sanitize=true&style=for-the-badge)      | Redux devtool integration                                                                 |
+| @sigi/di           | ![badge](https://img.shields.io/npm/v/@sigi/di.svg?sanitize=true&style=for-the-badge)           | Dependencies injection library which allow you compose your own class with `Sigi Modules` |
+| @sigi/testing      | ![badge](https://img.shields.io/npm/v/@sigi/testing.svg?sanitize=true&style=for-the-badge)      | Test helper library                                                                       |
 
 ## Required polyfill in legacy browsers
 
-> Bundle these polyfills on demand, `Sigi` does't import them in source code.
+> Bundle these polyfills on demand, `Sigi` won't import them directly.
 
 - Promise
-- Map
-- Set
-- Symbol
+- Map/Set
 - Reflect metadata
-  - [@abraham/reflection](https://www.npmjs.com/package/@abraham/reflection) `~3k`  **Recommand**
+  - [@abraham/reflection](https://www.npmjs.com/package/@abraham/reflection) `~3k` **Recommand**
   - [reflect-metadata](https://github.com/rbuckton/reflect-metadata) `~50k`
   - [core-js/es7/reflect](https://github.com/zloirock/core-js) `~80K`
 

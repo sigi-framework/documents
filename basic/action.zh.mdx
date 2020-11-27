@@ -5,6 +5,7 @@ menu: 基本概念
 ---
 
 # Action
+
 Sigi 的 `EffectModule` 底层由一个名为 `State` 的对象实现。`State` 对象和 `Redux` 的 `Store` 非常类似。它总是接收从 `Dispatcher` 和 `Effect` 发送过来的 `Action`, 并且将它们传递给 `Reducer` 和 `Effect`。
 
 在使用 Sigi 的应用中，你不需要手动创建 `Action`，所以我们并没有对外提供 `Dispatch` 方法。取而代之有两种方法可以达到 `Dispatch` action 的效果:
@@ -13,13 +14,15 @@ Sigi 的 `EffectModule` 底层由一个名为 `State` 的对象实现。`State` 
 - 在 **Effect** 中发射 (emit) action
 
 ## Dispatcher & ActionsCreator
+
 **Dispatcher** 是一个包含丰富类型定义的 **ActionsCreator** 的抽象。
 所有 `EffectModule` 类上被 **Reducer**, **ImmerReducer**, **Effect** 和 **DefineAction** 装饰器装饰的方法，都在 `EffectModule` 类中的 **ActionsCreator** 对象上有一个对应的方法，也在 `Component` 中的 **Dispatcher** 上有一个对应的方法。`EffectModule` 类中的 **ActionsCreator** 用来生成一个 `Action` 并且发射(emit) 给 `State` 对象，`Component` 中的 **Dispatcher** 用来直接 `Dispatch` 一个 Action 给 `State` 对象。
 
 ### Dispatch props created by Redux-Actions
+
 你可能在写 `Redux` 的时候用过 [Redux-Actions](https://github.com/redux-utilities/redux-actions) 这个库。`Sigi` 中的 **ActionsCreator** 概念与 `Redux-Actions` 库中的 **ActionsCreator** 非常类似。在 `Redux` 应用中 **ActionsCreator** 有几个明显的好处:
 
-- 避免在程序中编写 [魔法字符串](https://en.wikipedia.org/wiki/Magic_number_(programming))
+- 避免在程序中编写 [魔法字符串](<https://en.wikipedia.org/wiki/Magic_number_(programming)>)
 - (在 TypeScript 应用中)提供类型信息
 - 减少样板代码
 
@@ -45,107 +48,95 @@ export const reducer = (state, action) => { // losing type information here
 ```
 
 ```typescript
-const ADD_COUNT = createAction<number>('ADD_COUNT')
+const ADD_COUNT = createAction<number>("ADD_COUNT");
 
 interface DispatchProps {
-  addOne: typeof ADD_COUNT
+  addOne: typeof ADD_COUNT;
 }
 
 interface StateProps {
-  count: number
+  count: number;
 }
 
 // react actions dispatcher
-connect(mapStateToProps, (dispatch) => bindActionCreators({
-  addCount: ADD_COUNT,
-} as DispatchProps, dispatch))
+connect(mapStateToProps, (dispatch) =>
+  bindActionCreators(
+    {
+      addCount: ADD_COUNT,
+    } as DispatchProps,
+    dispatch
+  )
+);
 
 // reducer
-export const reducer = handleActions({
-  [`${ADD_COUNT}`]: (state: StateProps, { payload }: Action<number>) => {
-    return { ...state, count: state.count + payload }
-  }
-}, { count: 0 })
+export const reducer = handleActions(
+  {
+    [`${ADD_COUNT}`]: (state: StateProps, { payload }: Action<number>) => {
+      return { ...state, count: state.count + payload };
+    },
+  },
+  { count: 0 }
+);
 ```
 
-### Dispatcher
-Sigi 的 `Dispatcher` 借鉴了 `Redux-Actions` 的优势，让你不需要手动创建 `Action`，在 `Component` 中有两个 API 可以访问与 `EffectModule` 类对应的 `Dispatcher`:
+### 使用 Sigi 管理 actions
 
-#### `useEffectModuleDispatchers`
-这个 `hook` 接收一个 **EffectModule** 类，返回与这个 **EffectModule** 对应的 **Dispatcher**
+#### 定义 EffectModule
 
 ```ts
-interface State {}
-
-@Module('SomeNamespace')
-class SomeModule extends EffectModule<State> {
-  defaultState = {}
-
-  @Effect()
-  addAndSync(payload$: Observable<number>) {
-    return payload$.pipe(
-      withLatestFrom(this.moduleA.state$),
-      map(([payload, stateA]) => {
-        ...
-      })
-    )
-  }
+import { Module, EffectModule, Reducer } from "@sigi/core";
+interface State {
+  count: number;
 }
 
+@Module("SomeNamespace")
+class SomeModule extends EffectModule<State> {
+  defaultState = {
+    count: 0,
+  };
+
+  @Reducer()
+  add(state: State, count: number) {
+    state = { ...state, count: state.count + count };
+  }
+}
+```
+
+> 可以从上面的代码看到，没有任何魔法字符串，也没有冗余的样板代码 🤯。
+
+#### 使用
+
+对使用 React 开发的应用，我们提供了两个 hooks 来在组件中引用 effect module 里定义的操作。
+这两个 hooks 都接收 EffectModule 类型作为参数，并返回 Module 对于的 dispatcher
+
+#### `useModule` 和 `useDispatchers`
+
+```ts
+// 使用 module
+import { useDispatchers, useModule } from "@sigi/react";
+
 const SomeComponent = () => {
-  /**
-   * @type { addAndSync: (payload: number) => void }
-   * the type of dispatcher will be inferred automatically
-   **/
-  const dispatcher = useEffectModuleDispatchers(SomeModule)
-  const inputRef = useRef<HTMLInputElement>()
+  // 注意：我们不需要担心 dispatcher 的类型。
+  // Sigi 的类型系统可以保证所有定义在 module 中的 reducers/effects 的类型都能 100% 正确地被推导出来。
+  const [state, dispatcher] = useModule(SomeModule);
+  // 如果某个组件不关心 module 的状态变更（即便状态更新了，也不需要重新渲染），可以这么使用：
+  // const dispatcher = useDispatchers(SomeModule);
+
+  const inputRef = useRef<HTMLInputElement>();
 
   const onClickAdd = useCallback(() => {
-    // ts will perform typecheck in the payload part
-    // and you can also perform **Jump to definition** in code editor
-    dispatcher.addAndSync(parseInt(inputRef.current!.value, 10))
-  }, [dispatcher, inputRef])
+    // ts 会对 payload 进行类型检查
+    // 也可以直接在这里使用**跳转到定义**类似的编辑器功能！
+    dispatcher.add(1);
+    // 下面这行会出现 ts 类型错误
+    // dispatch.add('string value');
+  }, [dispatcher, inputRef]);
 
   return (
     <div>
-      <input ref={inputRef} />
-      <button>add</button>
+      <button onClick={onClickAdd}>add 1</button>
+      <span>count: {state.count}</span>
     </div>
-  )
-}
+  );
+};
 ```
-
-#### `useEffectModule`
-这个 `hook` 与 `useEffectModuleDispatchers` 几乎一样，但它既返回与 **EffectModule** 类对应的 **AppState** 也返回 **Dispatcher**.
-
-### Emit actions in Effect using **ActionsCreator**
-
-[Effect](./effects.md) 的类型签名是: `<Payload>(action$: Observable<Payload>): Observable<Action>`.
-
-返回的 `Action` 只能由 `EffectModule` 类上的 **ActionsCreator** 生成，**ActionsCreator** 只能通过 `EffectModule` 类上的 `getActions` 方法访问。
-
-
-```ts
-interface State {
-  count: number
-}
-
-@Module('Count')
-class CountModule extends EffectModule<State> {
-  defaultState = {}
-  
-  @Reducer()
-  add(state: State, payload: number) {
-    return { ...state, count: payload }
-  }
-
-  @Effect()
-  payloadPassThrough(payload$: Observable<number>) {
-    return payload$.pipe(
-      map((payload) => this.getActions().add(payload))
-    )
-  }
-}
-```
-
-在上面这个例子中，`this.getActions().add(payload)` 会创建一个与被 **Reducer** 装饰的 `add` 方法对应的 `Action`。在组件中调用 `dispatcher.payloadPassThrough(payload)` 会最终触发 `add` **Reducer**。在这个例子中从组件中直接调用 `dispatcher.add(payload)` 可以达到同样的效果。

@@ -84,20 +84,20 @@ export const reducer = handleActions(
 #### 定义 EffectModule
 
 ```ts
-import { Module, EffectModule, Reducer } from '@sigi/core'
+import { Module, EffectModule, Reducer } from "@sigi/core";
 interface State {
-  count: number
+  count: number;
 }
 
 @Module("SomeNamespace")
 class SomeModule extends EffectModule<State> {
   defaultState = {
     count: 0,
-  }
+  };
 
   @Reducer()
   add(state: State, count: number) {
-    return { ...state, count: state.count + count }
+    return { ...state, count: state.count + count };
   }
 }
 ```
@@ -122,15 +122,13 @@ const SomeComponent = () => {
   // 如果某个组件不关心 module 的状态变更（即便状态更新了，也不需要重新渲染），可以这么使用：
   // const dispatcher = useDispatchers(SomeModule);
 
-  const inputRef = useRef<HTMLInputElement>();
-
   const onClickAdd = useCallback(() => {
     // ts 会对 payload 进行类型检查
     // 也可以直接在这里使用**跳转到定义**类似的编辑器功能！
     dispatcher.add(1);
     // 下面这行会出现 ts 类型错误
     // dispatch.add('string value');
-  }, [dispatcher, inputRef]);
+  }, [dispatcher]);
 
   return (
     <div>

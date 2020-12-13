@@ -84,20 +84,20 @@ export const reducer = handleActions(
 #### Definition
 
 ```ts
-import { Module, EffectModule, Reducer } from '@sigi/core'
+import { Module, EffectModule, Reducer } from "@sigi/core";
 interface State {
-  count: number
+  count: number;
 }
 
 @Module("SomeNamespace")
 class SomeModule extends EffectModule<State> {
   defaultState = {
     count: 0,
-  }
+  };
 
   @Reducer()
   add(state: State, count: number) {
-    return { ...state, count: state.count + count }
+    return { ...state, count: state.count + count };
   }
 }
 ```
@@ -123,15 +123,13 @@ const SomeComponent = () => {
   // or, if you don't care about the state changes.
   // const dispatcher = useDispatchers(SomeModule);
 
-  const inputRef = useRef<HTMLInputElement>();
-
   const onClickAdd = useCallback(() => {
     // ts will perform typecheck in the payload part
     // and you can also perform **Jump to definition** in code editor
     dispatcher.add(1);
     // ts type error
     // dispatch.add('string value')
-  }, [dispatcher, inputRef]);
+  }, [dispatcher]);
 
   return (
     <div>

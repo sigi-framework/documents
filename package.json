@@ -10,7 +10,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.13",
     "@sigi/core": "^2.5.1",
-    "@sigi/react": "^2.6.0",
+    "@sigi/react": "^2.7.0",
     "@types/react": "^17.0.1",
     "@types/react-dom": "^17.0.0",
     "docz": "^2.3.1",

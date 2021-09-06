@@ -11,7 +11,7 @@
     "@babel/core": "^7.12.13",
     "@sigi/core": "^2.5.1",
     "@sigi/react": "^2.8.6",
-    "@types/react": "^17.0.1",
+    "@types/react": "^17.0.20",
     "@types/react-dom": "^17.0.0",
     "docz": "^2.3.1",
     "eslint": "^7.23.0",

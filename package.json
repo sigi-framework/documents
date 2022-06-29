@@ -9,7 +9,7 @@
   "private": true,
   "devDependencies": {
     "@babel/core": "^7.12.13",
-    "@sigi/core": "^2.5.1",
+    "@sigi/core": "^2.12.1",
     "@sigi/react": "^2.8.6",
     "@types/react": "^17.0.1",
     "@types/react-dom": "^17.0.0",
